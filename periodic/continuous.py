@@ -12,6 +12,8 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.animation as animation
 
+np.random.seed(1234)
+tf.set_random_seed(1234)
 
 class PhysicsInformedNN:
     def __init__(self, x0, u0, tb, X_f, layers, lb, ub):
@@ -116,7 +118,7 @@ class PhysicsInformedNN:
         u_xx = tf.gradients(u_x, x)[0]
         u_xxx = tf.gradients(u_xx, x)[0]
 
-        f_u = u_t - u_xx
+        f_u = u_t + 6*u*u_x + u_xxx
         
         return f_u
     
@@ -152,20 +154,21 @@ if __name__ == "__main__":
     N_0 = 50
     N_b = 50
     N_f = 10000
-    t0 = 0.0
+    t0 = 0
     t1 = 1
     x0 = -5
     x1 = 5
-    layers = [2, 20, 20, 20, 20, 20, 20, 20, 20, 1]
+    layers = [2, 20, 20, 20, 20, 20, 20, 1]
     #>>>>>>>設定欄-----------------------------------------------------------------
             
     t = np.linspace(t0, t1, 100*(t1-t0))[:,None]
     x = np.linspace(x0, x1, 256*(x1 - x0))[:,None]
 
     #>>>>>>>初期条件-----------------------------------------------------------------
-    c = 0.0
+    c = 7.0
     c0 = 0.0
-    ini_func = np.exp(-(x**2))
+    ini_func = (c / 2.0) / (np.cosh((np.sqrt(c) / 2.0) * (x - c0)) ** 2)  #初期条件
+
     #>>>>>>>初期条件-----------------------------------------------------------------
 
     X, T = np.meshgrid(x,t)
@@ -196,8 +199,11 @@ if __name__ == "__main__":
 
     u_pred, f_u_pred = model.predict(X_star)
     U_pred = griddata(X_star, u_pred.flatten(), (X, T), method='cubic')    
-
     X_u_train = xx
+
+    np.savetxt('./data/usol.txt', U_pred)
+    np.savetxt('./data/x.txt', x)
+    np.savetxt('./data/t.txt', t)
 
     #plotting style-------------------------------
     fig, ax = newfig(1.0, 1.1)

@@ -46,7 +46,6 @@ class PhysicsInformedNN:
         self.t_f_tf = tf.placeholder(tf.float32, shape=[None, self.t_f.shape[1]])
         self.x_f_tf = tf.placeholder(tf.float32, shape=[None, self.x_f.shape[1]])
         self.y_f_tf = tf.placeholder(tf.float32, shape=[None, self.y_f.shape[1]])
-      　
         self.u_pred = self.net_u(self.t_u_tf, self.x_u_tf, self.y_u_tf) 
         self.f_pred = self.net_f(self.t_f_tf, self.x_f_tf, self.y_f_tf)  
         
